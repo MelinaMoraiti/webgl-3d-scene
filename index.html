@@ -33,9 +33,23 @@
         <canvas id="sceneCanvas">
         </canvas>
         <p>
-            Παράγοντας Κλιμάκωσης:<input type="text" id="textFactorScale" value="1" autocomplete="off">
-            <button id="startButton" onclick="startAnimation()">Ξεκίνα!</button>
-            <button id="stopButton" onclick="stopAnimation()">Σταμάτα!</button>
+            Βήμα περιστροφής του κύβου:<input type="text" id="stepAngleText" value="1" autocomplete="off">
+            Γωνίας θέασης (σε μοίρες)<input type="text" id="viewAngleTxt" value="80" autocomplete="off">
+            Ορθογώνια απόσταση της κάμερας από την αρχή των αξόνων: <input type="text" id="viewDistanceTxt" value="9" autocomplete="off">
+            <br>
+            Θέση κάμερας:
+            <input type="radio" name="cameraPosition" value="Left-Front-Top" checked> Left-Front-Top
+            <input type="radio" name="cameraPosition" value="Left-Front-Bottom"> Left-Front-Bottom
+            <input type="radio" name="cameraPosition" value="Left-Back-Top"> Left-Back-Top
+            <input type="radio" name="cameraPosition" value="Left-Back-Bottom"> Left-Back-Bottom
+            <input type="radio" name="cameraPosition" value="Right-Front-Top"> Right-Front-Top
+            <input type="radio" name="cameraPosition" value="Right-Front-Bottom"> Right-Front-Bottom
+            <input type="radio" name="cameraPosition" value="Right-Back-Top"> Right-Back-Top
+            <input type="radio" name="cameraPosition" value="Right-Back-Bottom"> Right-Back-Bottom
+            <br>
+            <!-- <button id="startButton" onclick="startAnimation()">Ξεκίνα!</button>
+            <button id="stopButton" onclick="stopAnimation()">Σταμάτα!</button> -->
+            <button id="redesignButton" onclick="redesign()">Ξανασχεδίασε!</button>
         </p>
     </body>
 </html>
