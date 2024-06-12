@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <script src="js/script.js"></script> <!-- Include the main JavaScript file -->
+        <script src="lib/webgl-debug.js"></script> <!-- Include the WebGL debugging library-->
+        <script src="lib/gl-matrix-min.js"></script> 
+        <!-- <script id="vShader" type="x-shader/x-vertex" src="vertexShader.glsl"></script> Separate vertex shader file --> 
+        <!-- <script id="fShader" type="x-shader/x-fragment" src="fragmentShader.glsl"></script>   Separate fragment shader file -->
+
+        <script id="vShader" type="x-shader/x-vertex">
+            attribute vec4 aVertexPosition; 
+            attribute vec4 aVertexColor; 
+            uniform mat4 uVerticesTransform; 
+            varying vec4 vColor; 
+            void main() {
+                gl_Position = uVerticesTransform * aVertexPosition; 
+                vColor = aVertexColor;
+            } 
+        </script>
+            
+        <script id="fShader" type="x-shader/x-fragment">
+            precision mediump float; 
+            varying vec4 vColor; 
+            void main() {
+                gl_FragColor = vColor;
+            }
+        </script>
+
+    </head>
+    <body onload="main()">
+        <canvas id="sceneCanvas">
+        </canvas>
+        <p>
+            Παράγοντας Κλιμάκωσης:<input type="text" id="textFactorScale" value="1" autocomplete="off">
+            <button id="startButton" onclick="startAnimation()">Ξεκίνα!</button>
+            <button id="stopButton" onclick="stopAnimation()">Σταμάτα!</button>
+        </p>
+    </body>
+</html>
