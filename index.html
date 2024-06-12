@@ -11,10 +11,11 @@
         <script id="vShader" type="x-shader/x-vertex">
             attribute vec4 aVertexPosition; 
             attribute vec4 aVertexColor; 
-            uniform mat4 uVerticesTransform; 
+            uniform mat4 uVerticesTransform;
+            uniform mat4 uPerspectiveViewTransform; 
             varying vec4 vColor; 
             void main() {
-                gl_Position = uVerticesTransform * aVertexPosition; 
+                gl_Position = uPerspectiveViewTransform * uVerticesTransform * aVertexPosition; 
                 vColor = aVertexColor;
             } 
         </script>
