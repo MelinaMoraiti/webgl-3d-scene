@@ -5,13 +5,20 @@ var shadersProgram;
 var vertexPositionAttributePointer; 
 var vertexColorAttributePointer;
 var verticesTransformUniformPointer; 
+var perspectiveViewUniformPointer;
 var vertexBuffer;
 var colorBuffer; 
 var indexBuffer; 
-var totalAngle = 0.0; 
+var totalAngle = -1.0; // Used to rotate camera
 var rotationXMatrix = new Float32Array(16);
 var requestID = 0; 
  
+var totalZ = 0.01; // Total height of camera in the z-axis
+
+var perspectiveMatrix; // perspective Matrix
+var viewMatrix; // position of camera
+var pvMatrix; // product of perspectiveMatrix and viewMatrix
+
 function createGLContext(inCanvas) {
 	var outContext = null;
 	outContext = inCanvas.getContext("webgl");
@@ -53,6 +60,8 @@ function initShaders() {
 	vertexColorAttributePointer = gl.getAttribLocation(shadersProgram, "aVertexColor"); 
 	gl.enableVertexAttribArray(vertexColorAttributePointer); 
 	verticesTransformUniformPointer = gl.getUniformLocation(shadersProgram, "uVerticesTransform"); 
+    //Save in the new uniform pointer the address of uPerspectiveViewTransform
+    perspectiveUniformPointer = gl.getUniformLocation(shadersProgram, "uPerspectiveViewTransform"); 
 }
 
 function initBuffers() {
@@ -94,7 +103,7 @@ function initBuffers() {
     vertexBuffer.itemSize = 4;  
     vertexBuffer.itemCount = 24;
 
-		// Colors for 8 vertices
+	// Colors for 6 faces
     var cubeColors = new Float32Array([
         // Front face - Light cyan
         0.79, 0.94, 0.97, 1.0,  // Vertex 0
@@ -154,6 +163,43 @@ function initBuffers() {
 }
 
 function drawScene() { 
+
+// Create camera matrices
+    // create viewMatrix
+    viewMatrix = glMatrix.mat4.create();
+    var viewDistanceText = document.getElementById("viewDistanceTxt").value; 
+	var viewDistance = parseFloat(viewDistanceText);
+    // Get selected camera position
+    var selectedCameraPosition = document.querySelector('input[name="cameraPosition"]:checked').value;
+    var cameraPositions = {
+        "Left-Front-Top": [-viewDistance, viewDistance, viewDistance],
+        "Left-Front-Bottom": [-viewDistance, viewDistance, -viewDistance],
+        "Left-Back-Top": [-viewDistance, -viewDistance, viewDistance],
+        "Left-Back-Bottom": [-viewDistance, -viewDistance, -viewDistance],
+        "Right-Front-Top": [viewDistance, viewDistance, viewDistance],
+        "Right-Front-Bottom": [viewDistance, viewDistance, -viewDistance],
+        "Right-Back-Top": [viewDistance, -viewDistance, viewDistance],
+        "Right-Back-Bottom": [viewDistance, -viewDistance, -viewDistance]
+    };
+    var cameraPosition = cameraPositions[selectedCameraPosition];
+    var cameraTargetPoint = [0,0,0];
+    var pointUp = [0,0,1];
+    glMatrix.mat4.lookAt(viewMatrix,cameraPosition, cameraTargetPoint, pointUp);
+    // Create perspectiveMatrix
+    perspectiveMatrix = glMatrix.mat4.create();
+    var viewAngleText = document.getElementById("viewAngleTxt").value; 
+    fieldOfView = parseFloat(viewAngleText) * Math.PI/180.0;
+    aspect = 1;
+    near = 0.01;
+    far = 100;
+    glMatrix.mat4.perspective(perspectiveMatrix, fieldOfView, aspect, near, far);
+    // Calculate product which is pvMatrix
+    pvMatrix = glMatrix.mat4.create();
+    glMatrix.mat4.multiply(pvMatrix, perspectiveMatrix,viewMatrix);
+    // pvMatrix is fed with the new uniform with pointer perspectiveUniformPointer
+    gl.uniformMatrix4fv(perspectiveUniformPointer, false, pvMatrix);
+
+    //Create Cube rotation and translation 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
 	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -161,23 +207,20 @@ function drawScene() {
 	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	
 	// Compute total rotation angle
-	var textFactorScale = document.getElementById("textFactorScale").value; 
-	var numStepAngle= parseFloat(textFactorScale);
-	numStepAngle = numStepAngle*Math.PI/180.0; 
+	var textStepAngle = document.getElementById("stepAngleText").value; 
+	var numStepAngle = parseFloat(textStepAngle) * Math.PI/180.0; 
 	totalAngle += numStepAngle; 
-	glMatrix.mat4.fromXRotation(rotationXMatrix, totalAngle );  
-   
+	glMatrix.mat4.fromXRotation(rotationXMatrix, totalAngle);  
+
     // Create a translation matrix
 	var translationMatrix = new Float32Array(16);
 	var finalMatrix = new Float32Array(16);
-
     // Translate the pyramid to the origin
     glMatrix.mat4.fromTranslation(translationMatrix, [0, 0, 0]);
     // Combine the rotation and translation matrices
-    glMatrix.mat4.multiply(finalMatrix,  rotationXMatrix, translationMatrix);
+    glMatrix.mat4.multiply(finalMatrix, translationMatrix, rotationXMatrix);
     // Set the transformation matrix
     gl.uniformMatrix4fv(verticesTransformUniformPointer, false, finalMatrix); 
-
     // Draw the pyramid
     gl.drawElements(gl.TRIANGLES, indexBuffer.itemCount, gl.UNSIGNED_SHORT, 0);
 }
@@ -195,7 +238,11 @@ function main() {
 	gl.enable(gl.DEPTH_TEST); 
 	drawScene(); 
  }
+function redesign() {
 
+    // Redraw the scene
+    drawScene();
+}
 function startAnimation() {
 	if (requestID == 0)
 		requestID = window.requestAnimationFrame(animationStep);
