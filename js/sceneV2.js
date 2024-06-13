@@ -9,11 +9,13 @@ var perspectiveViewUniformPointer;
 var vertexBuffer;
 var colorBuffer; 
 var indexBuffer; 
-var totalAngle = -1.0; // Used to rotate camera
-var rotationXMatrix = new Float32Array(16);
-var requestID = 0; 
- 
-var totalZ = 0.01; // Total height of camera in the z-axis
+var translationMatrix = new Float32Array(16);
+// ΚΛΙΜΑ.0. Πίνακες κλιμάκωσης και συνολικού μετασχηματισμού
+var scaleMatrix = new Float32Array(16);
+var finalMatrix = new Float32Array(16);
+// ΚΛΙΜΑ.1. Παράγοντας μεταβολής κλιμάκωσης (scaleFactor) και τελικός υπολογιζόμενος συντελεστής κλιμάκωσης (scale) - θεωρείται κοινός για x και y
+var scaleFactor = 1.01;
+var scale = 1.0;
 
 var perspectiveMatrix; // perspective Matrix
 var viewMatrix; // position of camera
@@ -67,35 +69,35 @@ function initShaders() {
 function initBuffers() {
     var cubeVertices = new Float32Array([
         // Front face
-         0.3,  0.3,  0.3, 1.0,  // Vertex 0
-        -0.3,  0.3,  0.3, 1.0,  // Vertex 1
-        -0.3, -0.3,  0.3, 1.0,  // Vertex 2
-         0.3, -0.3,  0.3, 1.0,  // Vertex 3
+        1.0,  1.0,  1.0, 1.0,  // Vertex 0
+        -1.0,  1.0,  1.0, 1.0,  // Vertex 1
+        -1.0, -1.0,  1.0, 1.0,  // Vertex 2
+        1.0, -1.0,  1.0, 1.0,  // Vertex 3
         // Back face
-         0.3,  0.3, -0.3, 1.0,  // Vertex 4
-        -0.3,  0.3, -0.3, 1.0,  // Vertex 5
-        -0.3, -0.3, -0.3, 1.0,  // Vertex 6
-         0.3, -0.3, -0.3, 1.0,  // Vertex 7
+        1.0,  1.0, -1.0, 1.0,  // Vertex 4
+        -1.0,  1.0, -1.0, 1.0,  // Vertex 5
+        -1.0, -1.0, -1.0, 1.0,  // Vertex 6
+        1.0, -1.0, -1.0, 1.0,  // Vertex 7
         // Top face
-         0.3,  0.3, -0.3, 1.0,  // Vertex 8
-        -0.3,  0.3, -0.3, 1.0,  // Vertex 9
-        -0.3,  0.3,  0.3, 1.0,  // Vertex 10
-         0.3,  0.3,  0.3, 1.0,  // Vertex 11
+        1.0,  1.0, -1.0, 1.0,  // Vertex 8
+        -1.0,  1.0, -1.0, 1.0,  // Vertex 9
+        -1.0,  1.0,  1.0, 1.0,  // Vertex 10
+        1.0,  1.0,  1.0, 1.0,  // Vertex 11
         // Bottom face
-         0.3, -0.3,  0.3, 1.0,  // Vertex 12
-        -0.3, -0.3,  0.3, 1.0,  // Vertex 13
-        -0.3, -0.3, -0.3, 1.0,  // Vertex 14
-         0.3, -0.3, -0.3, 1.0,  // Vertex 15
+        1.0, -1.0,  1.0, 1.0,  // Vertex 12
+        -1.0, -1.0,  1.0, 1.0,  // Vertex 13
+        -1.0, -1.0, -1.0, 1.0,  // Vertex 14
+        1.0, -1.0, -1.0, 1.0,  // Vertex 15
         // Right face
-         0.3,  0.3, -0.3, 1.0,  // Vertex 16
-         0.3,  0.3,  0.3, 1.0,  // Vertex 17
-         0.3, -0.3,  0.3, 1.0,  // Vertex 18
-         0.3, -0.3, -0.3, 1.0,  // Vertex 19
+        1.0,  1.0, -1.0, 1.0,  // Vertex 16
+        1.0,  1.0,  1.0, 1.0,  // Vertex 17
+        1.0, -1.0,  1.0, 1.0,  // Vertex 18
+        1.0, -1.0, -1.0, 1.0,  // Vertex 19
         // Left face
-        -0.3,  0.3, -0.3, 1.0,  // Vertex 20
-        -0.3,  0.3,  0.3, 1.0,  // Vertex 21
-        -0.3, -0.3,  0.3, 1.0,  // Vertex 22
-        -0.3, -0.3, -0.3, 1.0,  // Vertex 23
+        -1.0,  1.0, -1.0, 1.0,  // Vertex 20
+        -1.0,  1.0,  1.0, 1.0,  // Vertex 21
+        -1.0, -1.0,  1.0, 1.0,  // Vertex 22
+        -1.0, -1.0, -1.0, 1.0,  // Vertex 23
     ]);
     vertexBuffer = gl.createBuffer(); 
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
@@ -200,32 +202,40 @@ function drawScene(farVisibilityThreshold) {
     // pvMatrix is fed with the new uniform with pointer perspectiveUniformPointer
     gl.uniformMatrix4fv(perspectiveUniformPointer, false, pvMatrix);
 
-//Create Cube rotation and translation 
+//Create Cubes transformations
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
 	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer); 
 	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	
-	// Compute total rotation angle
-	/*var textStepAngle = document.getElementById("stepAngleText").value; 
-	var numStepAngle = parseFloat(textStepAngle) * Math.PI/180.0; 
-	totalAngle += numStepAngle; 
-	glMatrix.mat4.fromXRotation(rotationXMatrix, totalAngle);  */
-
-    // Create a translation matrix
-	var translationMatrix = new Float32Array(16);
-	//var finalMatrix = new Float32Array(16); // This matrix will hold the product of the translation and rotation matrices
-    // Translate the pyramid to the origin
-    glMatrix.mat4.fromTranslation(translationMatrix, [0, 0, 0]);
+	/* TABLE TOP */
+	// Create scaling cube
+    scaleCube(scaleMatrix,20.0,20.0,1.0);
+    // Translate the cube to the origin
+    translateCube(translationMatrix,0, 0, 0);
     // Combine the rotation and translation matrices
-    //glMatrix.mat4.multiply(finalMatrix, translationMatrix, rotationXMatrix);
+    combineCubes(finalMatrix, translationMatrix, scaleMatrix);
+
+    /* LEG1 */
+}
+function scaleCube(cube, scaleX, scaleY, scaleZ)
+{
+    glMatrix.mat4.fromScaling(cube, [scaleX, scaleY, scaleZ]);
+}
+function translateCube(cube, moveX, moveY, moveZ)
+{
+    glMatrix.mat4.fromTranslation(cube, [moveX, moveY, moveZ]);
+}
+function combineCubes(resultMat, mat1, mat2)
+{
+    // Combine matrices
+    glMatrix.mat4.multiply(resultMat, mat1, mat2);
     // Set the transformation matrix
-    gl.uniformMatrix4fv(verticesTransformUniformPointer, false, translationMatrix); 
-    // Draw the pyramid
+    gl.uniformMatrix4fv(verticesTransformUniformPointer, false, resultMat); 
+    // Draw the cube
     gl.drawElements(gl.TRIANGLES, indexBuffer.itemCount, gl.UNSIGNED_SHORT, 0);
 }
- 
+
 function main() {
 	minDimension = Math.min(window.innerHeight, window.innerWidth);
 	canvas = document.getElementById("sceneCanvas"); 
