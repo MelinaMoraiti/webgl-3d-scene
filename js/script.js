@@ -199,7 +199,7 @@ function drawScene() {
     // pvMatrix is fed with the new uniform with pointer perspectiveUniformPointer
     gl.uniformMatrix4fv(perspectiveUniformPointer, false, pvMatrix);
 
-    //Create Cube rotation and translation 
+//Create Cube rotation and translation 
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
 	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -207,20 +207,20 @@ function drawScene() {
 	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 	
 	// Compute total rotation angle
-	var textStepAngle = document.getElementById("stepAngleText").value; 
+	/*var textStepAngle = document.getElementById("stepAngleText").value; 
 	var numStepAngle = parseFloat(textStepAngle) * Math.PI/180.0; 
 	totalAngle += numStepAngle; 
-	glMatrix.mat4.fromXRotation(rotationXMatrix, totalAngle);  
+	glMatrix.mat4.fromXRotation(rotationXMatrix, totalAngle);  */
 
     // Create a translation matrix
 	var translationMatrix = new Float32Array(16);
-	var finalMatrix = new Float32Array(16);
+	//var finalMatrix = new Float32Array(16); // This matrix will hold the product of the translation and rotation matrices
     // Translate the pyramid to the origin
     glMatrix.mat4.fromTranslation(translationMatrix, [0, 0, 0]);
     // Combine the rotation and translation matrices
-    glMatrix.mat4.multiply(finalMatrix, translationMatrix, rotationXMatrix);
+    //glMatrix.mat4.multiply(finalMatrix, translationMatrix, rotationXMatrix);
     // Set the transformation matrix
-    gl.uniformMatrix4fv(verticesTransformUniformPointer, false, finalMatrix); 
+    gl.uniformMatrix4fv(verticesTransformUniformPointer, false, translationMatrix); 
     // Draw the pyramid
     gl.drawElements(gl.TRIANGLES, indexBuffer.itemCount, gl.UNSIGNED_SHORT, 0);
 }
