@@ -162,7 +162,7 @@ function initBuffers() {
     indexBuffer.itemCount = 36; 
 }
 
-function drawScene() { 
+function drawScene(farVisibilityThreshold) { 
 
 // Create camera matrices
     // create viewMatrix
@@ -184,15 +184,16 @@ function drawScene() {
     var cameraPosition = cameraPositions[selectedCameraPosition];
     var cameraTargetPoint = [0,0,0];
     var pointUp = [0,0,1];
-    glMatrix.mat4.lookAt(viewMatrix,cameraPosition, cameraTargetPoint, pointUp);
+    glMatrix.mat4.lookAt(viewMatrix, cameraPosition, cameraTargetPoint, pointUp);
     // Create perspectiveMatrix
     perspectiveMatrix = glMatrix.mat4.create();
     var viewAngleText = document.getElementById("viewAngleTxt").value; 
     fieldOfView = parseFloat(viewAngleText) * Math.PI/180.0;
     aspect = 1;
     near = 0.01;
-    far = 100;
-    glMatrix.mat4.perspective(perspectiveMatrix, fieldOfView, aspect, near, far);
+    if (!farVisibilityThreshold) farVisibilityThreshold = 100;
+    console.log(farVisibilityThreshold);
+    glMatrix.mat4.perspective(perspectiveMatrix, fieldOfView, aspect, near, farVisibilityThreshold);
     // Calculate product which is pvMatrix
     pvMatrix = glMatrix.mat4.create();
     glMatrix.mat4.multiply(pvMatrix, perspectiveMatrix,viewMatrix);
@@ -238,10 +239,12 @@ function main() {
 	gl.enable(gl.DEPTH_TEST); 
 	drawScene(); 
  }
-function redesign() {
-
-    // Redraw the scene
-    drawScene();
+function redesign(factor) {
+    var viewDistanceText = document.getElementById("viewDistanceTxt").value; 
+    var viewDistance = parseFloat(viewDistanceText);
+    var newFar = viewDistance * factor;
+     // Redraw the scene
+    drawScene(newFar);
 }
 function startAnimation() {
 	if (requestID == 0)
