@@ -246,6 +246,7 @@ function redesign(factor) {
      // Redraw the scene
     drawScene(newFar);
 }
+/*
 function startAnimation() {
 	if (requestID == 0)
 		requestID = window.requestAnimationFrame(animationStep);
@@ -260,3 +261,4 @@ function stopAnimation() {
 	window.cancelAnimationFrame(requestID);
 	requestID = 0;
 }
+*/
