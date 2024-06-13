@@ -204,17 +204,28 @@ function drawScene(farVisibilityThreshold) {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
 	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
+    /* BIG TABLE */
 	/* TABLE TOP */
-	drawTableTop(colorBuffers.tableTop);
+	drawTableTop(20,20,1,0,0,16, colorBuffers.tableTop);
     /* FRONT LEFT LEG */
-    drawLeg(-19,19,colorBuffers.frontLeftLeg);
+    drawLeg(1, 1, 15, 19, 19, 0, colorBuffers.frontLeftLeg);
     /* FRONT RIGHT LEG */
-    drawLeg(-19,-19, colorBuffers.frontRightLeg);
+    drawLeg(1, 1, 15, -19, -19, 0, colorBuffers.frontRightLeg);
     /* BACK LEFT LEG */
-    drawLeg(19, -19, colorBuffers.backLeftLeg);
+    drawLeg(1, 1, 15, 19, -19, 0, colorBuffers.backLeftLeg);
     /* BACK RIGHT LEG */
-    drawLeg(19,19, colorBuffers.backRightLeg);
+    drawLeg(1, 1, 15, -19, 19, 0, colorBuffers.backRightLeg);
+    /* STOOL (half table)*/
+    /* TABLE TOP */
+    drawTableTop(10, 10, 0.5, 10, 0, 8, colorBuffers.tableTop);
+    /* FRONT LEFT LEG */
+    drawLeg(0.5, 0.5, 7.5, 10+9.5, 9.5, 0, colorBuffers.frontLeftLeg);
+    /* FRONT RIGHT LEG */
+    drawLeg(0.5, 0.5, 7.5, 10-9.5, -9.5, 0, colorBuffers.frontRightLeg);
+    /* BACK LEFT LEG */
+    drawLeg(0.5, 0.5, 7.5, 10+9.5, -9.5, 0, colorBuffers.backLeftLeg);
+    /* BACK RIGHT LEG */
+    drawLeg(0.5, 0.5, 7.5, 10-9.5, 9.5, 0, colorBuffers.backRightLeg);
 }
 
 function setCameraAndView(farVisibilityThreshold) {
@@ -252,7 +263,7 @@ function setCameraAndView(farVisibilityThreshold) {
     // Set the uniform matrix for shaders
     gl.uniformMatrix4fv(perspectiveUniformPointer, false, pvMatrix);
 }
-function drawTableTop(colorBufferObject)
+function drawTableTop(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,colorBufferObject)
 {
     // Reset matrices
     glMatrix.mat4.identity(scaleMatrix);
@@ -260,21 +271,21 @@ function drawTableTop(colorBufferObject)
     glMatrix.mat4.identity(finalMatrix);
 
     // Scale and translate table top
-    scaleCube(scaleMatrix, 20.0, 20.0, 1.0);
-    translateCube(translationMatrix, 0.0, 0.0, 16); 
+    scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
+    translateCube(translationMatrix, translateX, translateY,translateZ); 
     gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
 	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
 }
-function drawLeg(translateX, translateY, colorBufferObject) {
+function drawLeg(scaleX, scaleY, scaleZ,translateX, translateY, translateZ, colorBufferObject) {
      // Reset matrices
     glMatrix.mat4.identity(scaleMatrix);
     glMatrix.mat4.identity(translationMatrix);
     glMatrix.mat4.identity(finalMatrix);
 
     // Scale and translate leg
-    scaleCube(scaleMatrix, 1.0, 1.0, 15.0);
-    translateCube(translationMatrix, translateX, translateY, 0); 
+    scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
+    translateCube(translationMatrix, translateX, translateY, translateZ); 
     gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
 	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
