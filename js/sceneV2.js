@@ -150,33 +150,33 @@ function initBuffers() {
 
 	// Colors for 6 faces of TABLE TOP 
     var greenShades = createShadesForCube(0, 1, 0);
-	colorBuffers.tableTop = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.tableTop); 
+	colorBuffers.green = gl.createBuffer(); 
+	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.green); 
 	gl.bufferData(gl.ARRAY_BUFFER, greenShades, gl.STATIC_DRAW); 
 	colorBuffers.itemSize = 4;  
 	colorBuffers.itemCount = 24;
 	// Colors for 6 faces OF LEGS
     var redShades = createShadesForCube(1, 0, 0);
-	colorBuffers.frontLeftLeg = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.frontLeftLeg); 
+	colorBuffers.red = gl.createBuffer(); 
+	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.red); 
 	gl.bufferData(gl.ARRAY_BUFFER, redShades, gl.STATIC_DRAW); 
 	colorBuffers.itemSize = 4;  
 	colorBuffers.itemCount = 24;
     var blueShades = createShadesForCube(0, 0, 1);
-	colorBuffers.frontRightLeg = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.frontRightLeg); 
+	colorBuffers.blue = gl.createBuffer(); 
+	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.blue); 
 	gl.bufferData(gl.ARRAY_BUFFER, blueShades, gl.STATIC_DRAW); 
 	colorBuffers.itemSize = 4;  
 	colorBuffers.itemCount = 24;
     var purpleShades = createShadesForCube(0.5, 0, 0.5);
-	colorBuffers.backLeftLeg = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.backLeftLeg); 
+	colorBuffers.purple = gl.createBuffer(); 
+	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.purple); 
 	gl.bufferData(gl.ARRAY_BUFFER, purpleShades, gl.STATIC_DRAW); 
 	colorBuffers.itemSize = 4;  
 	colorBuffers.itemCount = 24;
     var yellowShades = createShadesForCube(1, 1, 0);
-	colorBuffers.backRightLeg = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.backRightLeg); 
+	colorBuffers.yellow = gl.createBuffer(); 
+	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.yellow); 
 	gl.bufferData(gl.ARRAY_BUFFER, yellowShades, gl.STATIC_DRAW); 
 	colorBuffers.itemSize = 4;  
 	colorBuffers.itemCount = 24;
@@ -205,27 +205,30 @@ function drawScene(farVisibilityThreshold) {
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
 	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
     /* BIG TABLE */
-	/* TABLE TOP */
-	drawTableTop(20,20,1,0,0,16, colorBuffers.tableTop);
-    /* FRONT LEFT LEG */
-    drawLeg(1, 1, 15, 19, 19, 0, colorBuffers.frontLeftLeg);
-    /* FRONT RIGHT LEG */
-    drawLeg(1, 1, 15, -19, -19, 0, colorBuffers.frontRightLeg);
-    /* BACK LEFT LEG */
-    drawLeg(1, 1, 15, 19, -19, 0, colorBuffers.backLeftLeg);
-    /* BACK RIGHT LEG */
-    drawLeg(1, 1, 15, -19, 19, 0, colorBuffers.backRightLeg);
+        /* TABLE TOP */
+        drawTableTop(20,20,1,0,0,16, colorBuffers.green);
+        /* FRONT LEFT LEG */
+        drawLeg(1, 1, 15, 19, 19, 0, colorBuffers.red);
+        /* FRONT RIGHT LEG */
+        drawLeg(1, 1, 15, -19, -19, 0, colorBuffers.blue);
+        /* BACK LEFT LEG */
+        drawLeg(1, 1, 15, 19, -19, 0, colorBuffers.purple);
+        /* BACK RIGHT LEG */
+        drawLeg(1, 1, 15, -19, 19, 0, colorBuffers.yellow);
     /* STOOL (half table)*/
-    /* TABLE TOP */
-    drawTableTop(10, 10, 0.5, 10, 0, 8, colorBuffers.tableTop);
-    /* FRONT LEFT LEG */
-    drawLeg(0.5, 0.5, 7.5, 10+9.5, 9.5, 0, colorBuffers.frontLeftLeg);
-    /* FRONT RIGHT LEG */
-    drawLeg(0.5, 0.5, 7.5, 10-9.5, -9.5, 0, colorBuffers.frontRightLeg);
-    /* BACK LEFT LEG */
-    drawLeg(0.5, 0.5, 7.5, 10+9.5, -9.5, 0, colorBuffers.backLeftLeg);
-    /* BACK RIGHT LEG */
-    drawLeg(0.5, 0.5, 7.5, 10-9.5, 9.5, 0, colorBuffers.backRightLeg);
+        /* TABLE TOP */
+        drawTableTop(10, 10, 0.5, 20, 0, 8, colorBuffers.green);
+        /* FRONT LEFT LEG */
+        drawLeg(0.5, 0.5, 7.5, 20+9.5, 9.5, 0, colorBuffers.red);
+        /* FRONT RIGHT LEG */
+        drawLeg(0.5, 0.5, 7.5, 20-9.5, -9.5, 0, colorBuffers.blue);
+        /* BACK LEFT LEG */
+        drawLeg(0.5, 0.5, 7.5, 20+9.5, -9.5, 0, colorBuffers.purple);
+        /* BACK RIGHT LEG */
+        drawLeg(0.5, 0.5, 7.5, 20-9.5, 9.5, 0, colorBuffers.yellow);
+    /* BACK */
+        /* TABLE TOP */
+        drawTableTop(0.5, 10, 7.5, 29.5, 0, 16, colorBuffers.red);
 }
 
 function setCameraAndView(farVisibilityThreshold) {
