@@ -10,16 +10,13 @@ var vertexBuffer;
 var colorBuffer; 
 var indexBuffer; 
 var translationMatrix = new Float32Array(16);
-// ΚΛΙΜΑ.0. Πίνακες κλιμάκωσης και συνολικού μετασχηματισμού
+// Scaling and translation matrices
 var scaleMatrix = new Float32Array(16);
 var finalMatrix = new Float32Array(16);
-// ΚΛΙΜΑ.1. Παράγοντας μεταβολής κλιμάκωσης (scaleFactor) και τελικός υπολογιζόμενος συντελεστής κλιμάκωσης (scale) - θεωρείται κοινός για x και y
-var scaleFactor = 1.01;
-var scale = 1.0;
 
-var perspectiveMatrix; // perspective Matrix
-var viewMatrix; // position of camera
-var pvMatrix; // product of perspectiveMatrix and viewMatrix
+var perspectiveMatrix = new Float32Array(16);// perspective Matrix
+var viewMatrix = new Float32Array(16); // position of camera
+var pvMatrix = new Float32Array(16); // product of perspectiveMatrix and viewMatrix
 
 function createGLContext(inCanvas) {
 	var outContext = null;
@@ -167,11 +164,31 @@ function initBuffers() {
 function drawScene(farVisibilityThreshold) { 
 
 // Create camera matrices
-    // create viewMatrix
+    setCameraAndView(farVisibilityThreshold);
+
+//Create Cubes transformations TO CREATE A TABLE
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
+	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
+	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer); 
+	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	/* TABLE TOP */
+	drawTableTop();
+    /* FRONT LEFT LEG */
+    drawLeg(-19,19);
+    /* FRONT RIGHT LEG */
+    drawLeg(-19,-19);
+    /* BACK LEFT LEG */
+    drawLeg(19, -19);
+    /* BACK RIGHT LEG */
+    drawLeg(19,19);
+}
+
+function setCameraAndView(farVisibilityThreshold) {
+    // Create view matrix (adjust according to your camera position logic)
     viewMatrix = glMatrix.mat4.create();
-    var viewDistanceText = document.getElementById("viewDistanceTxt").value; 
-	var viewDistance = parseFloat(viewDistanceText);
-    // Get selected camera position
+    var viewDistanceText = document.getElementById("viewDistanceTxt").value;
+    var viewDistance = parseFloat(viewDistanceText);
     var selectedCameraPosition = document.querySelector('input[name="cameraPosition"]:checked').value;
     var cameraPositions = {
         "Left-Front-Top": [-viewDistance, viewDistance, viewDistance],
@@ -184,39 +201,46 @@ function drawScene(farVisibilityThreshold) {
         "Right-Back-Bottom": [viewDistance, -viewDistance, -viewDistance]
     };
     var cameraPosition = cameraPositions[selectedCameraPosition];
-    var cameraTargetPoint = [0,0,0];
-    var pointUp = [0,0,1];
+    var cameraTargetPoint = [0, 0, 0];
+    var pointUp = [0, 0, 1];
     glMatrix.mat4.lookAt(viewMatrix, cameraPosition, cameraTargetPoint, pointUp);
-    // Create perspectiveMatrix
+
+    // Create perspective matrix
     perspectiveMatrix = glMatrix.mat4.create();
-    var viewAngleText = document.getElementById("viewAngleTxt").value; 
-    fieldOfView = parseFloat(viewAngleText) * Math.PI/180.0;
-    aspect = 1;
-    near = 0.01;
+    var viewAngleText = document.getElementById("viewAngleTxt").value;
+    var fieldOfView = parseFloat(viewAngleText) * Math.PI / 180.0;
+    var aspect = 1; // Assuming square canvas
+    var near = 0.01;
     if (!farVisibilityThreshold) farVisibilityThreshold = 100;
-    console.log(farVisibilityThreshold);
     glMatrix.mat4.perspective(perspectiveMatrix, fieldOfView, aspect, near, farVisibilityThreshold);
-    // Calculate product which is pvMatrix
     pvMatrix = glMatrix.mat4.create();
-    glMatrix.mat4.multiply(pvMatrix, perspectiveMatrix,viewMatrix);
-    // pvMatrix is fed with the new uniform with pointer perspectiveUniformPointer
+    // Combine view and perspective matrices
+    glMatrix.mat4.multiply(pvMatrix, perspectiveMatrix, viewMatrix);
+    // Set the uniform matrix for shaders
     gl.uniformMatrix4fv(perspectiveUniformPointer, false, pvMatrix);
+}
+function drawTableTop()
+{
+    // Reset matrices
+    glMatrix.mat4.identity(scaleMatrix);
+    glMatrix.mat4.identity(translationMatrix);
+    glMatrix.mat4.identity(finalMatrix);
 
-//Create Cubes transformations
-	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
-	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
-	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer); 
-	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-	/* TABLE TOP */
-	// Create scaling cube
-    scaleCube(scaleMatrix,20.0,20.0,1.0);
-    // Translate the cube to the origin
-    translateCube(translationMatrix,0, 0, 0);
-    // Combine the rotation and translation matrices
+    // Scale and translate table top
+    scaleCube(scaleMatrix, 20.0, 20.0, 1.0);
+    translateCube(translationMatrix, 0.0, 0.0, 16); 
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
+}
+function drawLeg(translateX, translateY) {
+     // Reset matrices
+    glMatrix.mat4.identity(scaleMatrix);
+    glMatrix.mat4.identity(translationMatrix);
+    glMatrix.mat4.identity(finalMatrix);
 
-    /* LEG1 */
+    // Scale and translate leg
+    scaleCube(scaleMatrix, 1.0, 1.0, 15.0);
+    translateCube(translationMatrix, translateX, translateY, 0); 
+    combineCubes(finalMatrix, translationMatrix, scaleMatrix);
 }
 function scaleCube(cube, scaleX, scaleY, scaleZ)
 {
