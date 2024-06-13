@@ -180,6 +180,12 @@ function initBuffers() {
 	gl.bufferData(gl.ARRAY_BUFFER, yellowShades, gl.STATIC_DRAW); 
 	colorBuffers.itemSize = 4;  
 	colorBuffers.itemCount = 24;
+    var blackShades = createShadesForCube(0, 0, 0);
+	colorBuffers.black = gl.createBuffer(); 
+	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.black); 
+	gl.bufferData(gl.ARRAY_BUFFER, blackShades, gl.STATIC_DRAW); 
+	colorBuffers.itemSize = 4;  
+	colorBuffers.itemCount = 24;
 
     var cubeIndices = new Uint16Array([
         0, 1, 2,  0, 2, 3,  // Front face
@@ -208,7 +214,7 @@ function drawScene(farVisibilityThreshold) {
         /* TABLE TOP */
         drawTableTop(20,20,1,0,0,16, colorBuffers.green);
         /* FRONT LEFT LEG */
-        drawLeg(1, 1, 15, 19, 19, 0, colorBuffers.red);
+        drawLeg(1, 1, 15, 19, 19, 0, colorBuffers.black);
         /* FRONT RIGHT LEG */
         drawLeg(1, 1, 15, -19, -19, 0, colorBuffers.blue);
         /* BACK LEFT LEG */
@@ -219,7 +225,7 @@ function drawScene(farVisibilityThreshold) {
         /* TABLE TOP */
         drawTableTop(10, 10, 0.5, 20, 0, 8, colorBuffers.green);
         /* FRONT LEFT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20+9.5, 9.5, 0, colorBuffers.red);
+        drawLeg(0.5, 0.5, 7.5, 20+9.5, 9.5, 0, colorBuffers.black);
         /* FRONT RIGHT LEG */
         drawLeg(0.5, 0.5, 7.5, 20-9.5, -9.5, 0, colorBuffers.blue);
         /* BACK LEFT LEG */
