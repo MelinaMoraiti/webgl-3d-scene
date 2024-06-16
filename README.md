@@ -1,6 +1,6 @@
 # 🪑 WebGL 3D Scene
 
-This project is developed as part of a course assignment to create a 3D scene using WebGL. The scene includes a table and two chairs and supports various user interactions such as rotating the camera and manipulating objects within the scene.
+This project is developed as part of a course assignment to create a 3D scene in 4 versions using WebGL. The scene includes a table and two chairs and supports various user interactions such as rotating the camera and manipulating objects within the scene.
 
 ## 📦 Libraries Used
 
