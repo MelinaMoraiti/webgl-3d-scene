@@ -211,6 +211,7 @@ function drawScene(farVisibilityThreshold) {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
 	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     /* BIG TABLE  */
     /* TABLE TOP Dimensions = 20x20x1*/
     drawTableTop(10, 10, 0.5, 0, 0, 8, colorBuffers.green);
