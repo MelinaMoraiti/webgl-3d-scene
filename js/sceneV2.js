@@ -142,6 +142,7 @@ function initBuffers() {
         -1.0, -1.0,  1.0, 1.0,  // Vertex 22
         -1.0, -1.0, -1.0, 1.0,  // Vertex 23
     ]);
+    
     vertexBuffer = gl.createBuffer(); 
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
     gl.bufferData(gl.ARRAY_BUFFER, cubeVertices, gl.STATIC_DRAW); 
@@ -210,31 +211,33 @@ function drawScene(farVisibilityThreshold) {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
 	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-    /* BIG TABLE */
-        /* TABLE TOP */
-        drawTableTop(20,20,1,0,0,16, colorBuffers.green);
-        /* FRONT LEFT LEG */
-        drawLeg(1, 1, 15, 19, 19, 0, colorBuffers.black);
-        /* FRONT RIGHT LEG */
-        drawLeg(1, 1, 15, -19, -19, 0, colorBuffers.blue);
-        /* BACK LEFT LEG */
-        drawLeg(1, 1, 15, 19, -19, 0, colorBuffers.purple);
-        /* BACK RIGHT LEG */
-        drawLeg(1, 1, 15, -19, 19, 0, colorBuffers.yellow);
-    /* STOOL (half table)*/
-        /* TABLE TOP */
-        drawTableTop(10, 10, 0.5, 20, 0, 8-7.5, colorBuffers.green);
-        /* FRONT LEFT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20+9.5, 9.5, -7.5, colorBuffers.black);
-        /* FRONT RIGHT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20-9.5, -9.5, -7.5, colorBuffers.blue);
-        /* BACK LEFT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20+9.5, -9.5, -7.5, colorBuffers.purple);
-        /* BACK RIGHT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20-9.5, 9.5, -7.5, colorBuffers.yellow);
-        /* BACK */
-        /* TABLE TOP */
-        drawTableTop(0.5, 10, 7.5, 29.5, 0, 16-7.5, colorBuffers.red);
+    /* BIG TABLE  */
+    /* TABLE TOP Dimensions = 20x20x1*/
+    drawTableTop(10, 10, 0.5, 0, 0, 8, colorBuffers.green);
+    /* FRONT LEFT LEG Dimensions = 1x1x15*/
+    drawLeg(0.5, 0.5, 7.5, 9.5, 9.5, 0, colorBuffers.black);  
+    /* FRONT RIGHT LEG Dimensions = 1x1x15*/
+    drawLeg(0.5, 0.5, 7.5, -9.5, -9.5, 0, colorBuffers.blue);  
+    /* BACK LEFT LEG Dimensions = 1x1x15*/
+    drawLeg(0.5, 0.5, 7.5, 9.5, -9.5, 0, colorBuffers.purple);  
+    /* BACK RIGHT LEG Dimensions = 1x1x15*/
+    drawLeg(0.5, 0.5, 7.5, -9.5, 9.5, 0, colorBuffers.yellow);  
+
+    /* STOOL (half table) */
+    /* TABLE TOP Dimensions = 10x10x0.5*/
+    drawTableTop(5, 5, 0.25, 10, 0, 4-3.75, colorBuffers.green);  // Halved dimensions
+    /* FRONT LEFT LEG Dimensions = 0.5x0.5x7.5*/
+    drawLeg(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, colorBuffers.black);  // Halved dimensions
+    /* FRONT RIGHT LEG Dimensions = 0.5x0.5x7.5*/
+    drawLeg(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, colorBuffers.blue);  // Halved dimensions
+    /* BACK LEFT LEG Dimensions = 0.5x0.5x7.5*/
+    drawLeg(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, colorBuffers.purple);  // Halved dimensions
+    /* BACK RIGHT LEG Dimensions = 0.5x0.5x7.5*/
+    drawLeg(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, colorBuffers.yellow);  // Halved dimensions
+
+    /* BACK */
+    /* TABLE TOP Dimensions = 0.5x10x7.5*/
+    drawTableTop(0.25, 5, 3.75, 14.75, 0, 8-3.75, colorBuffers.red);  // Halved dimensions
 }
 
 function setCameraAndView(farVisibilityThreshold) {
