@@ -239,7 +239,6 @@ function drawScene(farVisibilityThreshold) {
 
 function setCameraAndView(farVisibilityThreshold) {
     // Create view matrix (adjust according to your camera position logic)
-    viewMatrix = glMatrix.mat4.create();
     var viewDistanceText = document.getElementById("viewDistanceTxt").value;
     var viewDistance = parseFloat(viewDistanceText);
     var selectedCameraPosition = document.querySelector('input[name="cameraPosition"]:checked').value;
@@ -259,14 +258,13 @@ function setCameraAndView(farVisibilityThreshold) {
     glMatrix.mat4.lookAt(viewMatrix, cameraPosition, cameraTargetPoint, pointUp);
 
     // Create perspective matrix
-    perspectiveMatrix = glMatrix.mat4.create();
     var viewAngleText = document.getElementById("viewAngleTxt").value;
     var fieldOfView = parseFloat(viewAngleText) * Math.PI / 180.0;
     var aspect = 1; // Assuming square canvas
     var near = 0.01;
     if (!farVisibilityThreshold) farVisibilityThreshold = 100;
     glMatrix.mat4.perspective(perspectiveMatrix, fieldOfView, aspect, near, farVisibilityThreshold);
-    pvMatrix = glMatrix.mat4.create();
+    
     // Combine view and perspective matrices
     glMatrix.mat4.multiply(pvMatrix, perspectiveMatrix, viewMatrix);
     // Set the uniform matrix for shaders
