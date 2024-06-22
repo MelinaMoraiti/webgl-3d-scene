@@ -223,18 +223,18 @@ function drawScene(farVisibilityThreshold) {
         drawLeg(1, 1, 15, -19, 19, 0, colorBuffers.yellow);
     /* STOOL (half table)*/
         /* TABLE TOP */
-        drawTableTop(10, 10, 0.5, 20, 0, 8, colorBuffers.green);
+        drawTableTop(10, 10, 0.5, 20, 0, 8-7.5, colorBuffers.green);
         /* FRONT LEFT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20+9.5, 9.5, 0, colorBuffers.black);
+        drawLeg(0.5, 0.5, 7.5, 20+9.5, 9.5, -7.5, colorBuffers.black);
         /* FRONT RIGHT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20-9.5, -9.5, 0, colorBuffers.blue);
+        drawLeg(0.5, 0.5, 7.5, 20-9.5, -9.5, -7.5, colorBuffers.blue);
         /* BACK LEFT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20+9.5, -9.5, 0, colorBuffers.purple);
+        drawLeg(0.5, 0.5, 7.5, 20+9.5, -9.5, -7.5, colorBuffers.purple);
         /* BACK RIGHT LEG */
-        drawLeg(0.5, 0.5, 7.5, 20-9.5, 9.5, 0, colorBuffers.yellow);
-    /* BACK */
+        drawLeg(0.5, 0.5, 7.5, 20-9.5, 9.5, -7.5, colorBuffers.yellow);
+        /* BACK */
         /* TABLE TOP */
-        drawTableTop(0.5, 10, 7.5, 29.5, 0, 16, colorBuffers.red);
+        drawTableTop(0.5, 10, 7.5, 29.5, 0, 16-7.5, colorBuffers.red);
 }
 
 function setCameraAndView(farVisibilityThreshold) {
