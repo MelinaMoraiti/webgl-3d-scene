@@ -2,26 +2,32 @@ var gl;
 var canvas; 
 var shadersProgram; 
 var vertexPositionAttributePointer; 
-var vertexColorAttributePointer;
+//var vertexColorAttributePointer;
+// Instead of a pointer to the location of the color attribute, declare a global for the pointer to the location of the texture attribute 
+var textureCoordinatesAttributePointer;
 var verticesTransformUniformPointer; 
 var perspectiveViewUniformPointer;
+var uSamplerPointer;
 var vertexBuffer;
-var colorBuffer; 
 var indexBuffer; 
 var translationMatrix = new Float32Array(16);
 // Scaling and translation matrices
 var scaleMatrix = new Float32Array(16);
 var finalMatrix = new Float32Array(16);
-
+// Camera Matrices
 var perspectiveMatrix = new Float32Array(16);// perspective Matrix
 var viewMatrix = new Float32Array(16); // position of camera
 var pvMatrix = new Float32Array(16); // product of perspectiveMatrix and viewMatrix
 
-var colorBuffers = {}; // Object to hold multiple color buffers
+//var colorBuffers = {}; // Object to hold multiple color buffers
 
-var requestID = 0; 
+var requestID = 0; // used in start/stop animation functions
 var totalCameraAngle = -1.0; // Used for the spiral camera rotation.
-var totalZ = 0.01;
+var totalZ = 0.01; // The Height of the camera
+
+var textureBuffer;
+var tableTexture;
+var chairTexture;
 
 function createGLContext(inCanvas) {
 	var outContext = null;
@@ -61,11 +67,15 @@ function initShaders() {
 	gl.useProgram(shadersProgram); 
 	vertexPositionAttributePointer = 	gl.getAttribLocation(shadersProgram, "aVertexPosition"); 
 	gl.enableVertexAttribArray(vertexPositionAttributePointer); 
-	vertexColorAttributePointer = gl.getAttribLocation(shadersProgram, "aVertexColor"); 
-	gl.enableVertexAttribArray(vertexColorAttributePointer); 
+	//vertexColorAttributePointer = gl.getAttribLocation(shadersProgram, "aVertexColor"); 
+	//gl.enableVertexAttribArray(vertexColorAttributePointer); 
+    textureCoordinatesAttributePointer = gl.getAttribLocation(shadersProgram, "aTextureCoordinates");
+    gl.enableVertexAttribArray(textureCoordinatesAttributePointer);
 	verticesTransformUniformPointer = gl.getUniformLocation(shadersProgram, "uVerticesTransform"); 
     //Save in the new uniform pointer the address of uPerspectiveViewTransform
     perspectiveUniformPointer = gl.getUniformLocation(shadersProgram, "uPerspectiveViewTransform"); 
+    //	We also "remember" the new uniform via the pointer we declared 	
+    uSamplerPointer = gl.getUniformLocation(shadersProgram, "uSampler");
 }
 
 function createShadesForCube(R,G,B)
@@ -150,7 +160,7 @@ function initBuffers() {
     gl.bufferData(gl.ARRAY_BUFFER, cubeVertices, gl.STATIC_DRAW); 
     vertexBuffer.itemSize = 4;  
     vertexBuffer.itemCount = 24;
-
+/*
 	// Colors for 6 faces of TABLE TOP 
     var greenShades = createShadesForCube(0, 1, 0);
 	colorBuffers.green = gl.createBuffer(); 
@@ -189,6 +199,36 @@ function initBuffers() {
 	gl.bufferData(gl.ARRAY_BUFFER, blackShades, gl.STATIC_DRAW); 
 	colorBuffers.itemSize = 4;  
 	colorBuffers.itemCount = 24;
+*/
+    // Create texture buffer
+    textureBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+    var textureCoordinates = new Float32Array([
+        // Front face
+        1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
+        // Back face
+        1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
+        // Top face
+        1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
+        // Bottom face
+        1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
+        // Right face
+        1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
+        // Left face
+        1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
+    ]);
+      
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW);  
+    textureBuffer.itemSize = 2;
+    textureBuffer.itemCount = 24;
+    // Create a texture object for wooden table.
+    tableTexture = gl.createTexture();
+    var tableImageURL = "textures/wood_2k.jpg";
+    preprocessTextureImage(tableImageURL, tableTexture);
+    // Create a texture object for fabric chair.
+    chairTexture = gl.createTexture();
+    var chairImageURL = "textures/fabric.png";
+    preprocessTextureImage(chairImageURL, chairTexture);
 
     var cubeIndices = new Uint16Array([
         0, 1, 2,  0, 2, 3,  // Front face
@@ -203,7 +243,32 @@ function initBuffers() {
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, cubeIndices, gl.STATIC_DRAW);
     indexBuffer.itemCount = 36; 
 }
-
+//	Custom function for linking texture object to image and image preprocessing
+function preprocessTextureImage(imageURL, textureObject) {
+// 	Create a new image object
+	var imageObject = new Image();
+    imageObject.crossOrigin = "anonymous"; // Set the crossOrigin attribute
+	//	21.2. Όταν φορτώνεται θα τρέχει την παρακάτω (inline ανώνυμη) συνάρτηση
+	imageObject.onload = function() {    
+		// 21.2.1. ενεργοποιουμε ως τρέχον texture αυτό που δοθηκε σαν παραμετρος
+		gl.bindTexture(gl.TEXTURE_2D, textureObject);
+		// 21.2.2. αντιστρεφουμε το y γιατι στην εικονα μετραει απο πανω προσ τα κατω 
+		// (αν εχει σημασια το πανω-κατω στην υφη μας)		
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+		// 21.2.3. αντιγραφουμε την εικονα στο ενεργοποιημενο texture
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageObject);
+		// 21.2.4. καθοριζουμε πώς θα γεννιουνται νεα pixels αν χρειαζονται
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		// 21.2.5. καθοριζουμε πώς θα συμπτυσσονται pixels αν χρειαζεται
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+		// 21.2.6. αν αντι για gl.LINEAR στην τελευταια εντολη εχουμε χρησιμοποιησει gl.LINEAR_MIPMAP_NEAREST
+		// εννοείται ότι θα έχουμε εναλλακτικες εκδοχες του texture μικροτερης αναλυσης (mipmapping)
+		// που θα έχουν δημιουργηθεί με την παρακάτω εντολή generateMipmap. 
+		gl.generateMipmap(gl.TEXTURE_2D);
+	};
+	//	Load the image
+	imageObject.src = imageURL;	
+}
 function drawScene(farVisibilityThreshold) { 
 
 // Create camera matrices
@@ -211,35 +276,46 @@ function drawScene(farVisibilityThreshold) {
 
 //Create Cubes transformations TO CREATE A TABLE
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // clear color and depth buffer
+    // Bind Vertices Buffer
 	gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); 
 	gl.vertexAttribPointer(vertexPositionAttributePointer, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+	// Bind the index buffer
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+    // ACTIVATE TEXTURE UNIT 0 FOR TABLE
+    gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1i(uSamplerPointer, 0);
+    // Bind Texture Buffer
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+	gl.vertexAttribPointer(textureCoordinatesAttributePointer, textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
     /* BIG TABLE  */
     /* TABLE TOP Dimensions = 20x20x1*/
-    drawTableTop(10, 10, 0.5, 0, 0, 8, colorBuffers.green);
+    drawTableTop(10, 10, 0.5, 0, 0, 8, tableTexture);
     /* FRONT LEFT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, 9.5, 9.5, 0, colorBuffers.black);  
+    drawLeg(0.5, 0.5, 7.5, 9.5, 9.5, 0, tableTexture);  
     /* FRONT RIGHT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, -9.5, -9.5, 0, colorBuffers.blue);  
+    drawLeg(0.5, 0.5, 7.5, -9.5, -9.5, 0, tableTexture);  
     /* BACK LEFT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, 9.5, -9.5, 0, colorBuffers.purple);  
+    drawLeg(0.5, 0.5, 7.5, 9.5, -9.5, 0, tableTexture);  
     /* BACK RIGHT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, -9.5, 9.5, 0, colorBuffers.yellow);  
-
+    drawLeg(0.5, 0.5, 7.5, -9.5, 9.5, 0, tableTexture);  
+    // ACTIVATE TEXTURE UNIT 1 FOR TABLE
+    gl.activeTexture(gl.TEXTURE1);
+	gl.uniform1i(uSamplerPointer, 1);
     /* STOOL (half table) */
     /* TABLE TOP Dimensions = 10x10x0.5*/
-    drawTableTop(5, 5, 0.25, 10, 0, 4-3.75, colorBuffers.green);  // Halved dimensions
+    drawTableTop(5, 5, 0.25, 10, 0, 4-3.75, chairTexture);  // Halved dimensions
     /* FRONT LEFT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, colorBuffers.black);  // Halved dimensions
+    drawLeg(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, chairTexture);  // Halved dimensions
     /* FRONT RIGHT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, colorBuffers.blue);  // Halved dimensions
+    drawLeg(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, chairTexture);  // Halved dimensions
     /* BACK LEFT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, colorBuffers.purple);  // Halved dimensions
+    drawLeg(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, chairTexture);  // Halved dimensions
     /* BACK RIGHT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, colorBuffers.yellow);  // Halved dimensions
+    drawLeg(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, chairTexture);  // Halved dimensions
 
     /* BACK */
     /* TABLE TOP Dimensions = 0.5x10x7.5*/
-    drawTableTop(0.25, 5, 3.75, 14.75, 0, 8-3.75, colorBuffers.red);  // Halved dimensions
+    drawTableTop(0.25, 5, 3.75, 14.75, 0, 8-3.75, chairTexture);  // Halved dimensions
 }
 
 function setCameraAndView(farVisibilityThreshold) {
@@ -247,7 +323,7 @@ function setCameraAndView(farVisibilityThreshold) {
 	numCameraStepAngle = 1 * Math.PI/180.0; 
 	totalCameraAngle += numCameraStepAngle; 
 
-	totalZ += 0.02;
+	totalZ += 0.01;
 
     // Create view matrix 
     var viewDistanceText = document.getElementById("viewDistanceTxt").value;
@@ -282,8 +358,9 @@ function setCameraAndView(farVisibilityThreshold) {
     // Set the uniform matrix for shaders
     gl.uniformMatrix4fv(perspectiveUniformPointer, false, pvMatrix);
 }
-function drawTableTop(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,colorBufferObject)
+function drawTableTop(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,textureObject)
 {
+    gl.bindTexture(gl.TEXTURE_2D, textureObject); 
     // Reset matrices
     glMatrix.mat4.identity(scaleMatrix);
     glMatrix.mat4.identity(translationMatrix);
@@ -292,12 +369,14 @@ function drawTableTop(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,
     // Scale and translate table top
     scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
     translateCube(translationMatrix, translateX, translateY,translateZ); 
-    gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
-	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
+    //NO COLORS ANYMORE...
+    //gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
+	//gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
 }
-function drawLeg(scaleX, scaleY, scaleZ,translateX, translateY, translateZ, colorBufferObject) {
-     // Reset matrices
+function drawLeg(scaleX, scaleY, scaleZ,translateX, translateY, translateZ, textureObject) {
+    gl.bindTexture(gl.TEXTURE_2D, textureObject);  
+    // Reset matrices
     glMatrix.mat4.identity(scaleMatrix);
     glMatrix.mat4.identity(translationMatrix);
     glMatrix.mat4.identity(finalMatrix);
@@ -305,8 +384,10 @@ function drawLeg(scaleX, scaleY, scaleZ,translateX, translateY, translateZ, colo
     // Scale and translate leg
     scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
     translateCube(translationMatrix, translateX, translateY, translateZ); 
-    gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
-	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
+    //NO COLORS ANYMORE...
+    //gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
+	//gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
+    // bind texture objetct
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
 }
 function scaleCube(cube, scaleX, scaleY, scaleZ)
