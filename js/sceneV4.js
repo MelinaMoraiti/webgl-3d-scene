@@ -2,7 +2,6 @@ var gl;
 var canvas; 
 var shadersProgram; 
 var vertexPositionAttributePointer; 
-//var vertexColorAttributePointer;
 // Instead of a pointer to the location of the color attribute, declare a global for the pointer to the location of the texture attribute 
 var textureCoordinatesAttributePointer;
 var verticesTransformUniformPointer; 
@@ -18,8 +17,6 @@ var finalMatrix = new Float32Array(16);
 var perspectiveMatrix = new Float32Array(16);// perspective Matrix
 var viewMatrix = new Float32Array(16); // position of camera
 var pvMatrix = new Float32Array(16); // product of perspectiveMatrix and viewMatrix
-
-//var colorBuffers = {}; // Object to hold multiple color buffers
 
 var requestID = 0; // used in start/stop animation functions
 var totalCameraAngle = -1.0; // Used for the spiral camera rotation.
@@ -161,46 +158,6 @@ function initBuffers() {
     gl.bufferData(gl.ARRAY_BUFFER, cubeVertices, gl.STATIC_DRAW); 
     vertexBuffer.itemSize = 4;  
     vertexBuffer.itemCount = 24;
-/*
-	// Colors for 6 faces of TABLE TOP 
-    var greenShades = createShadesForCube(0, 1, 0);
-	colorBuffers.green = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.green); 
-	gl.bufferData(gl.ARRAY_BUFFER, greenShades, gl.STATIC_DRAW); 
-	colorBuffers.itemSize = 4;  
-	colorBuffers.itemCount = 24;
-	// Colors for 6 faces OF LEGS
-    var redShades = createShadesForCube(1, 0, 0);
-	colorBuffers.red = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.red); 
-	gl.bufferData(gl.ARRAY_BUFFER, redShades, gl.STATIC_DRAW); 
-	colorBuffers.itemSize = 4;  
-	colorBuffers.itemCount = 24;
-    var blueShades = createShadesForCube(0, 0, 1);
-	colorBuffers.blue = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.blue); 
-	gl.bufferData(gl.ARRAY_BUFFER, blueShades, gl.STATIC_DRAW); 
-	colorBuffers.itemSize = 4;  
-	colorBuffers.itemCount = 24;
-    var purpleShades = createShadesForCube(0.5, 0, 0.5);
-	colorBuffers.purple = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.purple); 
-	gl.bufferData(gl.ARRAY_BUFFER, purpleShades, gl.STATIC_DRAW); 
-	colorBuffers.itemSize = 4;  
-	colorBuffers.itemCount = 24;
-    var yellowShades = createShadesForCube(1, 1, 0);
-	colorBuffers.yellow = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.yellow); 
-	gl.bufferData(gl.ARRAY_BUFFER, yellowShades, gl.STATIC_DRAW); 
-	colorBuffers.itemSize = 4;  
-	colorBuffers.itemCount = 24;
-    var blackShades = createShadesForCube(0, 0, 0);
-	colorBuffers.black = gl.createBuffer(); 
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffers.black); 
-	gl.bufferData(gl.ARRAY_BUFFER, blackShades, gl.STATIC_DRAW); 
-	colorBuffers.itemSize = 4;  
-	colorBuffers.itemCount = 24;
-*/
     // Create texture buffer
     textureBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
@@ -372,9 +329,6 @@ function drawCube(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,text
     // Scale and translate table top
     scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
     translateCube(translationMatrix, translateX, translateY,translateZ); 
-    //NO COLORS ANYMORE...
-    //gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
-	//gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
 }
 

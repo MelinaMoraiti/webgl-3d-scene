@@ -12,18 +12,12 @@
 
         <script id="vShader" type="x-shader/x-vertex">
             attribute vec4 aVertexPosition; 
-            // attribute of texture instead of color
-            // attribute vec4 aVertexColor; 
             attribute vec2 aTextureCoordinates;
             uniform mat4 uVerticesTransform;
             uniform mat4 uPerspectiveViewTransform; 
-            // varying of texture instead of color
-            //varying vec4 vColor; 
             varying vec2 vTextureCoordinates;
             void main() {
                 gl_Position = uPerspectiveViewTransform * uVerticesTransform * aVertexPosition; 
-                //Update varying texture with attribute texture
-                //vColor = aVertexColor;
                 vTextureCoordinates = aTextureCoordinates;  
             } 
         </script>
@@ -31,17 +25,9 @@
         <script id="fShader" type="x-shader/x-fragment">
             precision mediump float; 
             varying vec2 vTextureCoordinates;
-            // varying vec4 vColor; 
-            // Declare a uniform *here, in the fragment shader* that will serve 
-            // to select the [appropriate color/pixel from the image given as texture] texel (= texture-pixel) 
-            // based on the distance from the vertices 
             uniform sampler2D uSampler;
 
             void main() {
-                // Instead of simply transferring the value that came via varying directly to gl_FragColor,
-                // the new uniform and the texture2D library function is used 
-                // to select the appropriate texel (texture-pixel) from the texture image
-                // gl_FragColor = vColor;
                 gl_FragColor = texture2D(uSampler, vTextureCoordinates);
             }
         </script>
@@ -55,7 +41,7 @@
             <input type="text" id="viewAngleTxt" value="80" autocomplete="off">
             <br>
             <label for="viewDistanceTxt">Ορθογώνια απόσταση της κάμερας από την αρχή των αξόνων:</label>
-            <input type="text" id="viewDistanceTxt" value="34" autocomplete="off">
+            <input type="text" id="viewDistanceTxt" value="45" autocomplete="off">
             <br>
             Θέση κάμερας:
             <br>
