@@ -209,7 +209,7 @@ function initBuffers() {
         // Back face
         1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
         // Top face
-        1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
+        1.0, 1.0,  0.0, 1.0,  0.0, 1.0,  1.0, 1.0,
         // Bottom face
         1.0, 1.0,  0.0, 1.0,  0.0, 0.0,  1.0, 0.0,
         // Right face
@@ -227,7 +227,7 @@ function initBuffers() {
     preprocessTextureImage(tableImageURL, tableTexture);
     // Create a texture object for fabric chair.
     chairTexture = gl.createTexture();
-    var chairImageURL = "textures/fabric.png";
+    var chairImageURL = "textures/fabric1024.png";
     preprocessTextureImage(chairImageURL, chairTexture);
 
     var cubeIndices = new Uint16Array([
@@ -289,33 +289,33 @@ function drawScene(farVisibilityThreshold) {
 	gl.vertexAttribPointer(textureCoordinatesAttributePointer, textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
     /* BIG TABLE  */
     /* TABLE TOP Dimensions = 20x20x1*/
-    drawTableTop(10, 10, 0.5, 0, 0, 8, tableTexture);
+    drawCube(10, 10, 0.5, 0, 0, 8, tableTexture);
     /* FRONT LEFT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, 9.5, 9.5, 0, tableTexture);  
+    drawCube(0.5, 0.5, 7.5, 9.5, 9.5, 0, tableTexture);  
     /* FRONT RIGHT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, -9.5, -9.5, 0, tableTexture);  
+    drawCube(0.5, 0.5, 7.5, -9.5, -9.5, 0, tableTexture);  
     /* BACK LEFT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, 9.5, -9.5, 0, tableTexture);  
+    drawCube(0.5, 0.5, 7.5, 9.5, -9.5, 0, tableTexture);  
     /* BACK RIGHT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, -9.5, 9.5, 0, tableTexture);  
+    drawCube(0.5, 0.5, 7.5, -9.5, 9.5, 0, tableTexture);  
     // ACTIVATE TEXTURE UNIT 1 FOR TABLE
     gl.activeTexture(gl.TEXTURE1);
 	gl.uniform1i(uSamplerPointer, 1);
     /* STOOL (half table) */
     /* TABLE TOP Dimensions = 10x10x0.5*/
-    drawTableTop(5, 5, 0.25, 10, 0, 4-3.75, chairTexture);  // Halved dimensions
+    drawCube(5, 5, 0.25, 10, 0, 4-3.75, chairTexture);  // Halved dimensions
     /* FRONT LEFT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, chairTexture);  // Halved dimensions
+    drawCube(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, chairTexture);  // Halved dimensions
     /* FRONT RIGHT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, chairTexture);  // Halved dimensions
+    drawCube(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, chairTexture);  // Halved dimensions
     /* BACK LEFT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, chairTexture);  // Halved dimensions
+    drawCube(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, chairTexture);  // Halved dimensions
     /* BACK RIGHT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, chairTexture);  // Halved dimensions
+    drawCube(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, chairTexture);  // Halved dimensions
 
     /* BACK */
     /* TABLE TOP Dimensions = 0.5x10x7.5*/
-    drawTableTop(0.25, 5, 3.75, 14.75, 0, 8-3.75, chairTexture);  // Halved dimensions
+    drawCube(0.25, 5, 3.75, 14.75, 0, 8-3.75, chairTexture);  // Halved dimensions
 }
 
 function setCameraAndView(farVisibilityThreshold) {
@@ -358,7 +358,7 @@ function setCameraAndView(farVisibilityThreshold) {
     // Set the uniform matrix for shaders
     gl.uniformMatrix4fv(perspectiveUniformPointer, false, pvMatrix);
 }
-function drawTableTop(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,textureObject)
+function drawCube(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,textureObject)
 {
     gl.bindTexture(gl.TEXTURE_2D, textureObject); 
     // Reset matrices
@@ -374,22 +374,7 @@ function drawTableTop(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,
 	//gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
 }
-function drawLeg(scaleX, scaleY, scaleZ,translateX, translateY, translateZ, textureObject) {
-    gl.bindTexture(gl.TEXTURE_2D, textureObject);  
-    // Reset matrices
-    glMatrix.mat4.identity(scaleMatrix);
-    glMatrix.mat4.identity(translationMatrix);
-    glMatrix.mat4.identity(finalMatrix);
 
-    // Scale and translate leg
-    scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
-    translateCube(translationMatrix, translateX, translateY, translateZ); 
-    //NO COLORS ANYMORE...
-    //gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
-	//gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
-    // bind texture objetct
-    combineCubes(finalMatrix, translationMatrix, scaleMatrix);
-}
 function scaleCube(cube, scaleX, scaleY, scaleZ)
 {
     glMatrix.mat4.fromScaling(cube, [scaleX, scaleY, scaleZ]);
