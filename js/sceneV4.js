@@ -27,6 +27,22 @@ var tableTexture;
 var chairTexture;
 var skyboxTexture;
 
+var mouseDown = false; 
+var deltaFresh = false;  
+/* Variables to count FPS
+var numberOfFrames;
+var previousTime;
+var currentTime;						
+*/
+var lastMouseX = null; 
+var lastMouseY = null; 
+var currMouseX = null; 
+var currMouseY = null;
+var deltaMouseX = 0;
+var deltaMouseY = 0;
+var wheelRadiusFactor = 1; 
+var rect; 	
+
 function createGLContext(inCanvas) {
 	var outContext = null;
 	outContext = inCanvas.getContext("webgl");
@@ -274,15 +290,24 @@ function drawScene(farVisibilityThreshold) {
     drawCube(500,500,500,0,0,0,skyboxTexture);
     gl.activeTexture(gl.TEXTURE3);
     gl.uniform1i(uSamplerPointer, 3);
-    drawCube(25,25,0.1,0,0,(-2*3.75) - 0.1,nameTexture);
+    // FIGHTING Z-FIGHTING
+	gl.polygonOffset(-1.0,-1.0);
+	gl.enable(gl.POLYGON_OFFSET_FILL);
+	gl.disable(gl.POLYGON_OFFSET_FILL);
+    drawCube(25,25,0.1,0,0,(-2*3.75) - 0.1, nameTexture);
 }
 
 function setCameraAndView(farVisibilityThreshold) {
-    // Calculate camera's total rotation angle from user's input
-	numCameraStepAngle = 0.50 * Math.PI/180.0; 
+    // Calculate camera's total rotation angle, step is hardcoded to 0.6
+	numCameraStepAngle = 0.60 * Math.PI/180.0; 
 	totalCameraAngle += numCameraStepAngle; 
-
+    // Calculate camera's total height (z-axis), step is hardcoded to 0.01
 	totalZ += 0.01;
+    /* OPTIONAL
+	if (totalCameraAngle >= 2*Math.PI) 
+        totalCameraAngle = totalCameraAngle - 2*Math.PI; 
+    else if (totalCameraAngle < 0) 
+        totalCameraAngle = totalCameraAngle + 2*Math.PI; */
 
     // Create view matrix 
     var viewDistanceText = document.getElementById("viewDistanceTxt").value;
@@ -361,8 +386,67 @@ function main() {
 	gl.clearColor(0.5, 0.5, 0.5, 1.0); // Background color
 	gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 	gl.enable(gl.DEPTH_TEST); 
+    /* FPS
+    previousTime = Date.now();
+	numberOfFrames = 0;
+    */
+	canvas.onmousedown = handleMouseDown;
+    window.onmouseup = handleMouseUp;
+	canvas.onmousemove = handleMouseMove;
+	canvas.onwheel = handleMouseWheel;
+	rect = canvas.getBoundingClientRect();
 	drawScene(); 
- }
+}
+function handleMouseDown(event) {
+    mouseDown = true;
+    lastMouseX = event.clientX - rect.left;
+    lastMouseY = rect.bottom - event.clientY;
+    deltaMouseX = 0;
+    deltaMouseY = 0;
+    deltaFresh = true;
+}
+function handleMouseUp(event) {
+    mouseDown = false;
+}
+function handleMouseMove(event) {
+    currMouseX = event.clientX - rect.left;
+    currMouseY = rect.bottom - event.clientY;
+    document.getElementById("mouseX").innerHTML = currMouseX;
+    document.getElementById("mouseY").innerHTML = currMouseY;
+
+    if (mouseDown)
+    {
+        deltaMouseX = currMouseX - lastMouseX;
+        deltaMouseY = currMouseY - lastMouseY;
+        deltaFresh = true;
+    }
+
+// ΝΕΟ.5. ΠΡΟΒΛΗΜΑ: Οι κινήσεις του ποντικιού με πατημένο κουμπί δεν έχουν επίδραση όταν το 
+// animation είναι σταματημένο. Γιατί;;;
+
+    // TODO.5. Προσθέστε εδώ τις κατάλληλες εντολές ώστε οι κινήσεις του ποντικιού 
+    //			με κουμπί πατημένο να έχουν επίδραση στη σκηνή και 
+    //			όταν το animation είναι σταματημένο
+    
+    // Τέλος TODO.5.
+    lastMouseX = currMouseX;
+    lastMouseY = currMouseY;
+}
+function handleMouseWheel(event) {
+		
+    if (event.deltaY > 0)
+        wheelRadiusFactor = wheelRadiusFactor*1.01;
+    else
+        wheelRadiusFactor = wheelRadiusFactor*0.99;
+// ΝΕΟ.6. ΠΡΟΒΛΗΜΑ: οι κινήσεις της ροδέλας δεν έχουν επίδραση στη σκηνή όταν το 
+// το animation είναι σταματημένο. Γιατί;;;
+
+    // TODO.6. Προσθέστε εδώ τις κατάλληλες εντολές ώστε οι κινήσεις της ροδέλας
+    //			να έχουν επίδραση στη σκηνή και όταν το animation είναι σταματημένο
+
+    // Τέλος TODO.6.
+}
+
 function redesign(factor) {
     var viewDistanceText = document.getElementById("viewDistanceTxt").value; 
     var viewDistance = parseFloat(viewDistanceText);
@@ -377,6 +461,17 @@ function startAnimation() {
 
 function animationStep() {
 	redesign(100);
+    //Assign FPS
+    /* 
+    numberOfFrames++;
+	currentTime = Date.now();
+	if (currentTime - previousTime >= 1000)
+	{
+		document.getElementById("fps").innerHTML = numberOfFrames;
+		numberOfFrames = 0;
+		previousTime = currentTime;
+	}
+    */
 	requestID = window.requestAnimationFrame(animationStep);
 }
 
