@@ -233,7 +233,9 @@ function initBuffers() {
     skyboxTexture = gl.createTexture();
     var skyboxImageURL = "textures/sky.jpg";
     preprocessTextureImage(skyboxImageURL, skyboxTexture);
-
+    nameTexture = gl.createTexture();
+    var nameImageURL = "textures/name_am.jpg";
+    preprocessTextureImage(nameImageURL, nameTexture);
     var cubeIndices = new Uint16Array([
         0, 1, 2,  0, 2, 3,  // Front face
         4, 5, 6,  4, 6, 7,  // Back face
@@ -323,11 +325,14 @@ function drawScene(farVisibilityThreshold) {
     gl.activeTexture(gl.TEXTURE2);
     gl.uniform1i(uSamplerPointer, 2);
     drawCube(500,500,500,0,0,0,skyboxTexture);
+    gl.activeTexture(gl.TEXTURE3);
+    gl.uniform1i(uSamplerPointer, 3);
+    drawCube(25,25,0.1,0,0,(-2*3.75) - 0.1,nameTexture);
 }
 
 function setCameraAndView(farVisibilityThreshold) {
     // Calculate camera's total rotation angle from user's input
-	numCameraStepAngle = 1 * Math.PI/180.0; 
+	numCameraStepAngle = 0.50 * Math.PI/180.0; 
 	totalCameraAngle += numCameraStepAngle; 
 
 	totalZ += 0.01;
