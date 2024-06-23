@@ -228,10 +228,10 @@ function initBuffers() {
     preprocessTextureImage(tableImageURL, tableTexture);
     // Create a texture object for fabric chair.
     chairTexture = gl.createTexture();
-    var chairImageURL = "textures/fabric1024.png";
+    var chairImageURL = "textures/fabric_hd.png";
     preprocessTextureImage(chairImageURL, chairTexture);
     skyboxTexture = gl.createTexture();
-    var skyboxImageURL = "textures/sky.jpg";
+    var skyboxImageURL = "textures/sky_2k.jpg";
     preprocessTextureImage(skyboxImageURL, skyboxTexture);
     nameTexture = gl.createTexture();
     var nameImageURL = "textures/name_am.jpg";

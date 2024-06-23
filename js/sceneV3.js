@@ -227,7 +227,7 @@ function initBuffers() {
     preprocessTextureImage(tableImageURL, tableTexture);
     // Create a texture object for fabric chair.
     chairTexture = gl.createTexture();
-    var chairImageURL = "textures/fabric1024.png";
+    var chairImageURL = "textures/fabric_hd.png";
     preprocessTextureImage(chairImageURL, chairTexture);
 
     var cubeIndices = new Uint16Array([
