@@ -29,11 +29,11 @@ var skyboxTexture;
 
 var mouseDown = false; 
 var deltaFresh = false;  
-/* Variables to count FPS
+// Variables to count FPS
 var numberOfFrames;
 var previousTime;
 var currentTime;						
-*/
+
 var lastMouseX = null; 
 var lastMouseY = null; 
 var currMouseX = null; 
@@ -394,10 +394,10 @@ function main() {
 	gl.clearColor(0.5, 0.5, 0.5, 1.0); // Background color
 	gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 	gl.enable(gl.DEPTH_TEST); 
-    /* FPS
+    //fps
     previousTime = Date.now();
 	numberOfFrames = 0;
-    */
+    
 	canvas.onmousedown = handleMouseDown;
     window.onmouseup = handleMouseUp;
 	canvas.onmousemove = handleMouseMove;
@@ -455,7 +455,6 @@ function startAnimation() {
 function animationStep() {
 	redesign(100);
     //Assign FPS
-    /* 
     numberOfFrames++;
 	currentTime = Date.now();
 	if (currentTime - previousTime >= 1000)
@@ -464,7 +463,7 @@ function animationStep() {
 		numberOfFrames = 0;
 		previousTime = currentTime;
 	}
-    */
+    
 	requestID = window.requestAnimationFrame(animationStep);
 }
 
