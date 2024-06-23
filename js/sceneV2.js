@@ -214,31 +214,31 @@ function drawScene(farVisibilityThreshold) {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
     /* BIG TABLE  */
     /* TABLE TOP Dimensions = 20x20x1*/
-    drawTableTop(10, 10, 0.5, 0, 0, 8, colorBuffers.green);
+    drawCube(10, 10, 0.5, 0, 0, 8, colorBuffers.green);
     /* FRONT LEFT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, 9.5, 9.5, 0, colorBuffers.black);  
+    drawCube(0.5, 0.5, 7.5, 9.5, 9.5, 0, colorBuffers.black);  
     /* FRONT RIGHT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, -9.5, -9.5, 0, colorBuffers.blue);  
+    drawCube(0.5, 0.5, 7.5, -9.5, -9.5, 0, colorBuffers.blue);  
     /* BACK LEFT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, 9.5, -9.5, 0, colorBuffers.purple);  
+    drawCube(0.5, 0.5, 7.5, 9.5, -9.5, 0, colorBuffers.purple);  
     /* BACK RIGHT LEG Dimensions = 1x1x15*/
-    drawLeg(0.5, 0.5, 7.5, -9.5, 9.5, 0, colorBuffers.yellow);  
+    drawCube(0.5, 0.5, 7.5, -9.5, 9.5, 0, colorBuffers.yellow);  
 
     /* STOOL (half table) */
     /* TABLE TOP Dimensions = 10x10x0.5*/
-    drawTableTop(5, 5, 0.25, 10, 0, 4-3.75, colorBuffers.green);  // Halved dimensions
+    drawCube(5, 5, 0.25, 10, 0, 4-3.75, colorBuffers.green);  // Halved dimensions
     /* FRONT LEFT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, colorBuffers.black);  // Halved dimensions
+    drawCube(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, colorBuffers.black);  // Halved dimensions
     /* FRONT RIGHT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, colorBuffers.blue);  // Halved dimensions
+    drawCube(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, colorBuffers.blue);  // Halved dimensions
     /* BACK LEFT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, colorBuffers.purple);  // Halved dimensions
+    drawCube(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, colorBuffers.purple);  // Halved dimensions
     /* BACK RIGHT LEG Dimensions = 0.5x0.5x7.5*/
-    drawLeg(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, colorBuffers.yellow);  // Halved dimensions
+    drawCube(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, colorBuffers.yellow);  // Halved dimensions
 
     /* BACK */
     /* TABLE TOP Dimensions = 0.5x10x7.5*/
-    drawTableTop(0.25, 5, 3.75, 14.75, 0, 8-3.75, colorBuffers.red);  // Halved dimensions
+    drawCube(0.25, 5, 3.75, 14.75, 0, 8-3.75, colorBuffers.red);  // Halved dimensions
 }
 
 function setCameraAndView(farVisibilityThreshold) {
@@ -274,7 +274,7 @@ function setCameraAndView(farVisibilityThreshold) {
     // Set the uniform matrix for shaders
     gl.uniformMatrix4fv(perspectiveUniformPointer, false, pvMatrix);
 }
-function drawTableTop(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,colorBufferObject)
+function drawCube(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,colorBufferObject)
 {
     // Reset matrices
     glMatrix.mat4.identity(scaleMatrix);
@@ -284,19 +284,6 @@ function drawTableTop(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,
     // Scale and translate table top
     scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
     translateCube(translationMatrix, translateX, translateY,translateZ); 
-    gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
-	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
-    combineCubes(finalMatrix, translationMatrix, scaleMatrix);
-}
-function drawLeg(scaleX, scaleY, scaleZ,translateX, translateY, translateZ, colorBufferObject) {
-     // Reset matrices
-    glMatrix.mat4.identity(scaleMatrix);
-    glMatrix.mat4.identity(translationMatrix);
-    glMatrix.mat4.identity(finalMatrix);
-
-    // Scale and translate leg
-    scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
-    translateCube(translationMatrix, translateX, translateY, translateZ); 
     gl.bindBuffer(gl.ARRAY_BUFFER,colorBufferObject); 
 	gl.vertexAttribPointer(vertexColorAttributePointer, colorBuffers.itemSize, gl.FLOAT, false, 0, 0);
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
