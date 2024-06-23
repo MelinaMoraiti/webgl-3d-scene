@@ -197,14 +197,14 @@ function initBuffers() {
     textureBuffer.itemCount = 24;
     // Create a texture object for wooden table.
     tableTexture = gl.createTexture();
-    var tableImageURL = "textures/wood_2k.jpg";
+    var tableImageURL = "textures/wood_2048x2048.jpg";
     preprocessTextureImage(tableImageURL, tableTexture);
     // Create a texture object for fabric chair.
     chairTexture = gl.createTexture();
-    var chairImageURL = "textures/fabric-texture-pattern-2048x2048.jpg";
+    var chairImageURL = "textures/beige_fabric_2048x2048.jpg";
     preprocessTextureImage(chairImageURL, chairTexture);
     skyboxTexture = gl.createTexture();
-    var skyboxImageURL = "textures/sky_2k.jpg";
+    var skyboxImageURL = "textures/sky_2048x2048.jpg";
     preprocessTextureImage(skyboxImageURL, skyboxTexture);
     nameTexture = gl.createTexture();
     var nameImageURL = "textures/name_am.jpg";
@@ -298,16 +298,25 @@ function drawScene(farVisibilityThreshold) {
 }
 
 function setCameraAndView(farVisibilityThreshold) {
-    // Calculate camera's total rotation angle, step is hardcoded to 0.6
-	numCameraStepAngle = 0.60 * Math.PI/180.0; 
-	totalCameraAngle += numCameraStepAngle; 
-    // Calculate camera's total height (z-axis), step is hardcoded to 0.01
-	totalZ += 0.01;
-    /* OPTIONAL
-	if (totalCameraAngle >= 2*Math.PI) 
-        totalCameraAngle = totalCameraAngle - 2*Math.PI; 
-    else if (totalCameraAngle < 0) 
-        totalCameraAngle = totalCameraAngle + 2*Math.PI; */
+    if (mouseDown == false && requestID != 0)
+    {
+        // Calculate camera's total rotation angle, step is hardcoded to 0.6
+        var numCameraStepAngle = 0.60 * Math.PI/180.0; 
+        totalCameraAngle += numCameraStepAngle; 
+        // Calculate camera's total height (z-axis), step is hardcoded to 0.01
+        totalZ += 0.01;
+        // OPTIONAL
+        if (totalCameraAngle >= 2*Math.PI) 
+            totalCameraAngle = totalCameraAngle - 2*Math.PI; 
+        else if (totalCameraAngle < 0) 
+            totalCameraAngle = totalCameraAngle + 2*Math.PI; 
+    }
+    if (mouseDown && deltaFresh == true)
+    {
+        var numCameraStepAngle = deltaMouseX * Math.PI/180.0; 
+	    totalCameraAngle += numCameraStepAngle; 
+        totalZ += (deltaMouseY/10)
+    }
 
     // Create view matrix 
     var viewDistanceText = document.getElementById("viewDistanceTxt").value;
@@ -324,7 +333,6 @@ function setCameraAndView(farVisibilityThreshold) {
         "Right-Back-Bottom": [viewDistance* Math.cos(totalCameraAngle), -viewDistance * Math.sin(totalCameraAngle), -viewDistance+ totalZ]
     };
     var cameraPosition = cameraPositions[selectedCameraPosition]
-    //var cameraPosition = [-viewDistance * Math.cos(totalCameraAngle), viewDistance * Math.sin(totalCameraAngle), totalZ];
     var cameraTargetPoint = [0, 0, 0];
     var pointUp = [0, 0, 1];
     glMatrix.mat4.lookAt(viewMatrix, cameraPosition, cameraTargetPoint, pointUp);
@@ -419,16 +427,8 @@ function handleMouseMove(event) {
         deltaMouseX = currMouseX - lastMouseX;
         deltaMouseY = currMouseY - lastMouseY;
         deltaFresh = true;
+        if (requestID == 0) redesign(100);
     }
-
-// ΝΕΟ.5. ΠΡΟΒΛΗΜΑ: Οι κινήσεις του ποντικιού με πατημένο κουμπί δεν έχουν επίδραση όταν το 
-// animation είναι σταματημένο. Γιατί;;;
-
-    // TODO.5. Προσθέστε εδώ τις κατάλληλες εντολές ώστε οι κινήσεις του ποντικιού 
-    //			με κουμπί πατημένο να έχουν επίδραση στη σκηνή και 
-    //			όταν το animation είναι σταματημένο
-    
-    // Τέλος TODO.5.
     lastMouseX = currMouseX;
     lastMouseY = currMouseY;
 }
@@ -438,13 +438,6 @@ function handleMouseWheel(event) {
         wheelRadiusFactor = wheelRadiusFactor*1.01;
     else
         wheelRadiusFactor = wheelRadiusFactor*0.99;
-// ΝΕΟ.6. ΠΡΟΒΛΗΜΑ: οι κινήσεις της ροδέλας δεν έχουν επίδραση στη σκηνή όταν το 
-// το animation είναι σταματημένο. Γιατί;;;
-
-    // TODO.6. Προσθέστε εδώ τις κατάλληλες εντολές ώστε οι κινήσεις της ροδέλας
-    //			να έχουν επίδραση στη σκηνή και όταν το animation είναι σταματημένο
-
-    // Τέλος TODO.6.
 }
 
 function redesign(factor) {
