@@ -245,25 +245,14 @@ function initBuffers() {
 }
 //	Custom function for linking texture object to image and image preprocessing
 function preprocessTextureImage(imageURL, textureObject) {
-// 	Create a new image object
 	var imageObject = new Image();
-    imageObject.crossOrigin = "anonymous"; // Set the crossOrigin attribute
-	//	21.2. Όταν φορτώνεται θα τρέχει την παρακάτω (inline ανώνυμη) συνάρτηση
+    imageObject.crossOrigin = "anonymous"; 
 	imageObject.onload = function() {    
-		// 21.2.1. ενεργοποιουμε ως τρέχον texture αυτό που δοθηκε σαν παραμετρος
 		gl.bindTexture(gl.TEXTURE_2D, textureObject);
-		// 21.2.2. αντιστρεφουμε το y γιατι στην εικονα μετραει απο πανω προσ τα κατω 
-		// (αν εχει σημασια το πανω-κατω στην υφη μας)		
 		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-		// 21.2.3. αντιγραφουμε την εικονα στο ενεργοποιημενο texture
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageObject);
-		// 21.2.4. καθοριζουμε πώς θα γεννιουνται νεα pixels αν χρειαζονται
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		// 21.2.5. καθοριζουμε πώς θα συμπτυσσονται pixels αν χρειαζεται
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-		// 21.2.6. αν αντι για gl.LINEAR στην τελευταια εντολη εχουμε χρησιμοποιησει gl.LINEAR_MIPMAP_NEAREST
-		// εννοείται ότι θα έχουμε εναλλακτικες εκδοχες του texture μικροτερης αναλυσης (mipmapping)
-		// που θα έχουν δημιουργηθεί με την παρακάτω εντολή generateMipmap. 
 		gl.generateMipmap(gl.TEXTURE_2D);
 	};
 	//	Load the image
