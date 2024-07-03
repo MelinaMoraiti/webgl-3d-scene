@@ -223,11 +223,11 @@ function initBuffers() {
     textureBuffer.itemCount = 24;
     // Create a texture object for wooden table.
     tableTexture = gl.createTexture();
-    var tableImageURL = "textures/wood_2k.jpg";
+    var tableImageURL = "textures/wood_2048x2048.jpg";
     preprocessTextureImage(tableImageURL, tableTexture);
     // Create a texture object for fabric chair.
     chairTexture = gl.createTexture();
-    var chairImageURL = "textures/fabric_hd.png";
+    var chairImageURL = "textures/green_fabric_2048x2048.png";
     preprocessTextureImage(chairImageURL, chairTexture);
 
     var cubeIndices = new Uint16Array([
