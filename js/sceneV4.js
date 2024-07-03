@@ -43,6 +43,9 @@ var deltaMouseY = 0;
 var wheelRadiusFactor = 1; 
 var rect; 	
 
+var rotationYMatrix = new Float32Array(16);
+var totalCubeAngle;
+
 function createGLContext(inCanvas) {
 	var outContext = null;
 	outContext = inCanvas.getContext("webgl");
@@ -201,7 +204,7 @@ function initBuffers() {
     preprocessTextureImage(tableImageURL, tableTexture);
     // Create a texture object for fabric chair.
     chairTexture = gl.createTexture();
-    var chairImageURL = "textures/beige_fabric_2048x2048.jpg";
+    var chairImageURL = "textures/green_fabric_2048x2048.png";
     preprocessTextureImage(chairImageURL, chairTexture);
     skyboxTexture = gl.createTexture();
     var skyboxImageURL = "textures/sky_2048x2048.jpg";
@@ -270,26 +273,28 @@ function drawScene(farVisibilityThreshold) {
     // ACTIVATE TEXTURE UNIT 1 FOR TABLE
     gl.activeTexture(gl.TEXTURE1);
 	gl.uniform1i(uSamplerPointer, 1);
-    /* STOOL (half table) */
+    /* CHAIR  */
     /* TABLE TOP Dimensions = 10x10x0.5*/
-    drawCube(5, 5, 0.25, 10, 0, 4-3.75, chairTexture);  // Halved dimensions
+    drawRotatingCube(5, 5, 0.25, 10, 0, 4-3.75, chairTexture,wheelRadiusFactor);  // Halved dimensions
     /* FRONT LEFT LEG Dimensions = 0.5x0.5x7.5*/
-    drawCube(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, chairTexture);  // Halved dimensions
+    drawRotatingCube(0.25, 0.25, 3.75, 10+4.75, 4.75, -3.75, chairTexture, wheelRadiusFactor);  // Halved dimensions
     /* FRONT RIGHT LEG Dimensions = 0.5x0.5x7.5*/
-    drawCube(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, chairTexture);  // Halved dimensions
+    drawRotatingCube(0.25, 0.25, 3.75, 10-4.75, -4.75, -3.75, chairTexture, wheelRadiusFactor);  // Halved dimensions
     /* BACK LEFT LEG Dimensions = 0.5x0.5x7.5*/
-    drawCube(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, chairTexture);  // Halved dimensions
+    drawRotatingCube(0.25, 0.25, 3.75, 10+4.75, -4.75, -3.75, chairTexture, wheelRadiusFactor);  // Halved dimensions
     /* BACK RIGHT LEG Dimensions = 0.5x0.5x7.5*/
-    drawCube(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, chairTexture);  // Halved dimensions
-    /* BACK */
-    /* TABLE TOP Dimensions = 0.5x10x7.5*/
-    drawCube(0.25, 5, 3.75, 14.75, 0, 8-3.75, chairTexture);  // Halved dimensions
+    drawRotatingCube(0.25, 0.25, 3.75, 10-4.75, 4.75, -3.75, chairTexture, wheelRadiusFactor);  // Halved dimensions
+    /* BACK Dimensions = 0.5x10x7.5*/
+    drawRotatingCube(0.25, 5, 3.75, 14.75, 0, 8-3.75, chairTexture, wheelRadiusFactor);  // Halved dimensions
+
+    console.log(wheelRadiusFactor);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.uniform1i(uSamplerPointer, 2);
     drawCube(500,500,500,0,0,0,skyboxTexture);
     gl.activeTexture(gl.TEXTURE3);
     gl.uniform1i(uSamplerPointer, 3);
+
     // FIGHTING Z-FIGHTING
 	gl.polygonOffset(-1.0,-1.0);
 	gl.enable(gl.POLYGON_OFFSET_FILL);
@@ -354,17 +359,11 @@ function setCameraAndView(farVisibilityThreshold) {
 function drawCube(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,textureObject)
 {
     gl.bindTexture(gl.TEXTURE_2D, textureObject); 
-    // Reset matrices
-    glMatrix.mat4.identity(scaleMatrix);
-    glMatrix.mat4.identity(translationMatrix);
-    glMatrix.mat4.identity(finalMatrix);
-
     // Scale and translate table top
     scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
     translateCube(translationMatrix, translateX, translateY,translateZ); 
     combineCubes(finalMatrix, translationMatrix, scaleMatrix);
 }
-
 function scaleCube(cube, scaleX, scaleY, scaleZ)
 {
     glMatrix.mat4.fromScaling(cube, [scaleX, scaleY, scaleZ]);
@@ -381,6 +380,17 @@ function combineCubes(resultMat, mat1, mat2)
     gl.uniformMatrix4fv(verticesTransformUniformPointer, false, resultMat); 
     // Draw the cube
     gl.drawElements(gl.TRIANGLES, indexBuffer.itemCount, gl.UNSIGNED_SHORT, 0);
+}
+function drawRotatingCube(scaleX, scaleY, scaleZ, translateX, translateY, translateZ, texture, radiusFactor) {
+    // Bind the texture
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    translateCube(translationMatrix,translateX,translateY,translateZ);
+    scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
+    //radiusFactor += (radiusFactor) * Math.PI/180.0;
+    glMatrix.mat4.fromYRotation(rotationYMatrix,radiusFactor*10);
+  
+    glMatrix.mat4.multiply(finalMatrix, translationMatrix, scaleMatrix);
+    combineCubes(finalMatrix,finalMatrix,rotationYMatrix);
 }
 
 function main() {
@@ -438,6 +448,7 @@ function handleMouseWheel(event) {
         wheelRadiusFactor = wheelRadiusFactor*1.01;
     else
         wheelRadiusFactor = wheelRadiusFactor*0.99;
+    if (requestID== 0) redesign(100);
 }
 
 function redesign(factor) {
