@@ -276,11 +276,6 @@ function setCameraAndView(farVisibilityThreshold) {
 }
 function drawCube(scaleX, scaleY, scaleZ, translateX, translateY,translateZ,colorBufferObject)
 {
-    // Reset matrices
-    glMatrix.mat4.identity(scaleMatrix);
-    glMatrix.mat4.identity(translationMatrix);
-    glMatrix.mat4.identity(finalMatrix);
-
     // Scale and translate table top
     scaleCube(scaleMatrix, scaleX, scaleY, scaleZ);
     translateCube(translationMatrix, translateX, translateY,translateZ); 
