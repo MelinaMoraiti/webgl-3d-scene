@@ -287,8 +287,6 @@ function drawScene(farVisibilityThreshold) {
     /* BACK Dimensions = 0.5x10x7.5*/
     drawRotatingCube(0.25, 5, 3.75, 14.75, 0, 8-3.75, chairTexture, wheelRadiusFactor);  // Halved dimensions
 
-    console.log(wheelRadiusFactor);
-
     gl.activeTexture(gl.TEXTURE2);
     gl.uniform1i(uSamplerPointer, 2);
     drawCube(500,500,500,0,0,0,skyboxTexture);
