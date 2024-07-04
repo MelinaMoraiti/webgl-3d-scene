@@ -177,17 +177,16 @@ function drawScene(farVisibilityThreshold) {
         "Right-Back-Bottom": [viewDistance, -viewDistance, -viewDistance]
     };
     var cameraPosition = cameraPositions[selectedCameraPosition];
-    var cameraTargetPoint = [0,0,0];
-    var pointUp = [0,0,1];
+    var cameraTargetPoint = [0,0,0]; // Direction to the origin
+    var pointUp = [0,0,1]; // Orientation upwardly orthogonal to the z-axis
     glMatrix.mat4.lookAt(viewMatrix, cameraPosition, cameraTargetPoint, pointUp);
     // Create perspectiveMatrix
     perspectiveMatrix = glMatrix.mat4.create();
     var viewAngleText = document.getElementById("viewAngleTxt").value; 
-    fieldOfView = parseFloat(viewAngleText) * Math.PI/180.0;
-    aspect = 1;
-    near = 0.01;
-    if (!farVisibilityThreshold) farVisibilityThreshold = 100;
-    console.log(farVisibilityThreshold);
+    fieldOfView = parseFloat(viewAngleText) * Math.PI/180.0; // Convert angle to rad.
+    aspect = 1; // PROPORTION OF DIMENSIONS
+    near = 0.01; // nearby visibility threshold 
+    if (!farVisibilityThreshold) farVisibilityThreshold = 1000;
     glMatrix.mat4.perspective(perspectiveMatrix, fieldOfView, aspect, near, farVisibilityThreshold);
     // Calculate product which is pvMatrix
     pvMatrix = glMatrix.mat4.create();
